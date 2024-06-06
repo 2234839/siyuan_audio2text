@@ -1,0 +1,30 @@
+{
+  "name": "siyuan_audio2text",
+  "author": "",
+  "url": "",
+  "version": "0.0.1",
+  "minAppVersion": "2.10.3",
+  "backends": [
+    "all"
+  ],
+  "frontends": [
+    "all"
+  ],
+  "displayName": {
+    "en_US": "siyuan_audio2text",
+    "zh_CN": "siyuan_audio2text"
+  },
+  "description": {
+    "en_US": "",
+    "zh_CN": ""
+  },
+  "readme": {
+    "en_US": "README_en.md",
+    "zh_CN": "README.md"
+  },
+  "funding": {
+    "custom": [
+      ""
+    ]
+  }
+}
