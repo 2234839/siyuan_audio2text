@@ -1,15 +1,10 @@
 import { Plugin } from "siyuan";
-import { insertBlock, setBlockAttrs, sql, updateBlock } from "./api";
 import "./index.css";
+import { insertBlock, setBlockAttrs, sql, updateBlock } from "~/libs/api";
 
-type aliasAttribute = { [K in keyof attribute as `a_${K}`]: attribute[K] };
-/** 合并了block和attribute，其中attribute的属性key前面添加了`a_` */
-type MergedBlock = aliasAttribute & Block;
-
-const attrName = "custom-text";
 const custom_audio_id = "custom-audio_id";
 
-export default class Siyuan_audio2text extends Plugin {
+export default class audio2text_plugin_siyuan extends Plugin {
   async onload() {
     this.addCommand({
       hotkey: "",

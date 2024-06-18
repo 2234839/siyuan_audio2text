@@ -1,8 +1,8 @@
 {
-  "name": "siyuan_audio2text",
-  "author": "",
-  "url": "",
-  "version": "0.0.1",
+  "name": "audio2text_plugin_siyuan",
+  "author": "崮生",
+  "url": "https://github.com/2234839/siyuan_audio2text",
+  "version": "0.0.3",
   "minAppVersion": "2.10.3",
   "backends": [
     "all"
@@ -11,20 +11,20 @@
     "all"
   ],
   "displayName": {
-    "en_US": "siyuan_audio2text",
-    "zh_CN": "siyuan_audio2text"
+    "en_US": "audio2text_plugin_siyuan",
+    "zh_CN": "audio2text_plugin_siyuan"
   },
   "description": {
     "en_US": "",
     "zh_CN": ""
   },
   "readme": {
-    "en_US": "README_en.md",
+    "en_US": "README.md",
     "zh_CN": "README.md"
   },
   "funding": {
     "custom": [
-      ""
+      "https://afdian.net/@llej0"
     ]
   }
 }
