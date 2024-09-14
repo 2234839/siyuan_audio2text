@@ -12,4 +12,3 @@
     SELECT * FROM attributes
     WHERE "name" ="${p}" AND VALUE = "${t.id}"`))[0];a===void 0?await x("markdown",h(t,e),void 0,t.id):await k("markdown",h(t,e),a.block_id)}async function L(t){return"识别结果测试"+new Date().toLocaleString()}function h(t,e){return`${e}
 {: ${p}="${t.id}" style="text-align: center;"}`}module.exports=g;
-//# sourceMappingURL=index.js.map
