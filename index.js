@@ -1,4 +1,98 @@
-"use strict";var E=Object.defineProperty;var m=(t,e,a)=>e in t?E(t,e,{enumerable:!0,configurable:!0,writable:!0,value:a}):t[e]=a;var y=(t,e,a)=>m(t,typeof e!="symbol"?e+"":e,a);const{fetchSyncPost:w}=require("siyuan");async function c(t,e){let a=await w(t,e);return a.code===0?a.data:null}async function x(t,e,a,n,r){return c("/api/block/insertBlock",{dataType:t,data:e,nextID:a,previousID:n,parentID:r})}async function k(t,e,a){return c("/api/block/updateBlock",{dataType:t,data:e,id:a})}async function T(t,e){return c("/api/attr/setBlockAttrs",{id:t,attrs:e})}async function l(t){return c("/api/query/sql",{stmt:t})}const{Plugin:A}=require("siyuan"),p="custom-audio_id";class g extends A{constructor(){super(...arguments);y(this,"onunloadFn",[])}async onload(){this.addCommand({hotkey:"",langKey:"转化所有音频为文本",langText:"转化所有音频为文本",callback:()=>{this.audio2text()}});var n=(()=>{var r=new MutationObserver(d=>{d.forEach(u=>{u.type==="childList"&&u.addedNodes.forEach(o=>{if(o instanceof HTMLElement&&(o==null?void 0:o.dataset.type)==="NodeAudio"){const s=document.createElement("button");s.innerText="🔄️",s.contentEditable="false",s.style.marginLeft="10px",o.appendChild(s),this.onunloadFn.push(()=>s.remove()),s.onclick=async()=>{const b=(await l(`select * from blocks where id = "${o==null?void 0:o.dataset.nodeId}"`))[0];await f(b),s.innerText="🔄️"}}})})}),i={childList:!0,subtree:!0};return r.observe(document.body,i),r})();this.onunloadFn.push(()=>n.disconnect())}async audio2text(){const a=await l(`
+"use strict";
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+const { fetchSyncPost } = require("siyuan");
+async function request(url, data) {
+  let response = await fetchSyncPost(url, data);
+  let res = response.code === 0 ? response.data : null;
+  return res;
+}
+async function insertBlock(dataType, data, nextID, previousID, parentID) {
+  let payload = {
+    dataType,
+    data,
+    nextID,
+    previousID,
+    parentID
+  };
+  let url = "/api/block/insertBlock";
+  return request(url, payload);
+}
+async function updateBlock(dataType, data, id) {
+  let payload = {
+    dataType,
+    data,
+    id
+  };
+  let url = "/api/block/updateBlock";
+  return request(url, payload);
+}
+async function setBlockAttrs(id, attrs) {
+  let data = {
+    id,
+    attrs
+  };
+  let url = "/api/attr/setBlockAttrs";
+  return request(url, data);
+}
+async function sql(sql2) {
+  let sqldata = {
+    stmt: sql2
+  };
+  let url = "/api/query/sql";
+  return request(url, sqldata);
+}
+const { Plugin } = require("siyuan");
+const custom_audio_id = "custom-audio_id";
+class audio2text_plugin_siyuan extends Plugin {
+  constructor() {
+    super(...arguments);
+    /** 插件卸载时会执行此数组中的函数 */
+    __publicField(this, "onunloadFn", []);
+  }
+  async onload() {
+    this.addCommand({
+      hotkey: "",
+      langKey: `转化所有音频为文本`,
+      langText: `转化所有音频为文本`,
+      callback: () => {
+        this.audio2text();
+      }
+    });
+    const watchDOMChanges = () => {
+      var observer2 = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === "childList") {
+            mutation.addedNodes.forEach((audioDiv) => {
+              if (audioDiv instanceof HTMLElement && (audioDiv == null ? void 0 : audioDiv.dataset.type) === "NodeAudio") {
+                const reloadBtn = document.createElement("button");
+                reloadBtn.innerText = "🔄️";
+                reloadBtn.contentEditable = "false";
+                reloadBtn.style.marginLeft = "10px";
+                audioDiv.appendChild(reloadBtn);
+                this.onunloadFn.push(() => reloadBtn.remove());
+                reloadBtn.onclick = async () => {
+                  const audioBlock = (await sql(`select * from blocks where id = "${audioDiv == null ? void 0 : audioDiv.dataset.nodeId}"`))[0];
+                  await audioBlockAddText(audioBlock);
+                  reloadBtn.innerText = "🔄️";
+                };
+              }
+            });
+          }
+        });
+      });
+      var config = { childList: true, subtree: true };
+      observer2.observe(document.body, config);
+      return observer2;
+    };
+    var observer = watchDOMChanges();
+    this.onunloadFn.push(() => observer.disconnect());
+  }
+  async audio2text() {
+    const audioBlocks = await sql(
+      /** 查询没有 text 属性的blocks */
+      `
     SELECT * FROM blocks AS b
     WHERE
       b.type ="audio"
@@ -8,7 +102,45 @@
         FROM attributes AS a
         WHERE a.block_id = b.id AND a."name" = "custom-text"
       )
-    `);await Promise.all(a.map(f))}async onunload(){this.onunloadFn.forEach(a=>a())}}async function f(t){await fetch(t.content).then(n=>n.arrayBuffer());const e=await L();await T(t.id,{"custom-text":e});const a=(await l(`
+    `
+    );
+    await Promise.all(audioBlocks.map(audioBlockAddText));
+  }
+  async onunload() {
+    this.onunloadFn.forEach((fn) => fn());
+  }
+}
+async function audioBlockAddText(audioBlock) {
+  await fetch(audioBlock.content).then((r) => r.arrayBuffer());
+  const audioText = await audioFile2Text();
+  await setBlockAttrs(audioBlock.id, {
+    "custom-text": audioText
+  });
+  const audioTextAttr = (await sql(
+    `
     SELECT * FROM attributes
-    WHERE "name" ="${p}" AND VALUE = "${t.id}"`))[0];a===void 0?await x("markdown",h(t,e),void 0,t.id):await k("markdown",h(t,e),a.block_id)}async function L(t){return"识别结果测试"+new Date().toLocaleString()}function h(t,e){return`${e}
-{: ${p}="${t.id}" style="text-align: center;"}`}module.exports=g;
+    WHERE "name" ="${custom_audio_id}" AND VALUE = "${audioBlock.id}"`
+  ))[0];
+  if (audioTextAttr === void 0) {
+    await insertBlock(
+      "markdown",
+      genAudioTextMarkdown(audioBlock, audioText),
+      void 0,
+      audioBlock.id
+    );
+  } else {
+    await updateBlock(
+      "markdown",
+      genAudioTextMarkdown(audioBlock, audioText),
+      audioTextAttr.block_id
+    );
+  }
+}
+async function audioFile2Text(audio) {
+  return "识别结果测试" + (/* @__PURE__ */ new Date()).toLocaleString();
+}
+function genAudioTextMarkdown(audioBlock, audioText) {
+  return `${audioText}
+{: ${custom_audio_id}="${audioBlock.id}" style="text-align: center;"}`;
+}
+module.exports = audio2text_plugin_siyuan;
